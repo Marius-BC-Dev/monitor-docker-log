@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -24,6 +25,11 @@ var (
 	}
 )
 
+type NotifyMsg struct {
+	Server string `json:"server"`
+	Msg    string `json:"msg"`
+}
+
 func readContainerLog(cli *client.Client, container ContainerInfo, options types.ContainerLogsOptions, senderNotifyCH chan<- string) error {
 	out, err := cli.ContainerLogs(context.Background(), container.ContainerID, options)
 	if err != nil {
@@ -44,7 +50,15 @@ func readContainerLog(cli *client.Client, container ContainerInfo, options types
 		resultString := string(line)[8:]
 		if strings.Contains(strings.ToLower(resultString), "error") || strings.Contains(strings.ToLower(resultString), "err") {
 			log.Info(resultString)
-			senderNotifyCH <- resultString
+			msg := NotifyMsg{
+				Server: container.ServerName,
+				Msg:    resultString,
+			}
+			if marshalMsg, err := json.Marshal(msg); err != nil {
+				log.Error(err)
+			} else {
+				senderNotifyCH <- string(marshalMsg)
+			}
 		}
 	}
 
