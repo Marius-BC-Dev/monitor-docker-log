@@ -17,11 +17,22 @@ type Config struct {
 	DockerVersion string          `json:"docker_version"`
 	Containers    []ContainerInfo `json:"containers"`
 	Tail          string          `json:"tail"`
+	HookUrl       string          `json:"hook_url"`
 }
 
 type ContainerInfo struct {
 	ContainerID string `json:"container_id"`
 	ServerName  string `json:"server_name"`
+	HookUrl     string `json:"hook_url"`
+}
+
+type LogConfig struct {
+	// Environment defining the log format ("production" or "development").
+	Environment LogEnvironment `mapstructure:"Environment"`
+	// Level of log, e.g. INFO, WARN, ...
+	Level string `mapstructure:"Level"`
+	// Outputs
+	Outputs []string `mapstructure:"Outputs"`
 }
 
 func load(ctx *cli.Context) (*Config, error) {

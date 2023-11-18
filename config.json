@@ -1,3 +1,11 @@
 {
-    
+    "docker_version":"3.8",
+    "tail":"10",
+    "containers":[
+        {
+            "container_id":"9073b16ba814",
+            "server_name":"server"
+        }
+    ],
+    "hook_url":""
 }
