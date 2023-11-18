@@ -43,6 +43,7 @@ func readContainerLog(cli *client.Client, container ContainerInfo, options types
 		// 因为docker前8个字符都是不可见字符，所以需要去掉，从第九个开始读取
 		resultString := string(line)[8:]
 		if strings.Contains(strings.ToLower(resultString), "error") || strings.Contains(strings.ToLower(resultString), "err") {
+			log.Info(resultString)
 			senderNotifyCH <- resultString
 		}
 	}
