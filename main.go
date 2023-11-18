@@ -86,7 +86,7 @@ func start(c *cli.Context) error {
 		return err
 	}
 
-	cli, err := client.NewClientWithOpts(client.WithVersion(cfg.DockerVersion))
+	cli, err := client.NewClientWithOpts(client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
