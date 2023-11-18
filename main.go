@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -52,7 +53,7 @@ func readContainerLog(cli *client.Client, container ContainerInfo, options types
 func notificationLark(bot *lark.Bot, recvNotifyCH <-chan string) {
 	for msg := range recvNotifyCH {
 		if _, err := bot.PostNotificationV2(lark.NewMsgBuffer(lark.MsgText).Text(msg).Build()); err != nil {
-			fmt.Println(err)
+			log.Error(err)
 		}
 	}
 
@@ -107,6 +108,9 @@ func start(c *cli.Context) error {
 
 	for i := 0; i < len(cfg.Containers); i++ {
 		container := cfg.Containers[i]
+		if cfg.HookUrl == "" && container.HookUrl == "" {
+			return errors.New("check lark: hook url")
+		}
 		if container.HookUrl != "" {
 			containerBot := lark.NewNotificationBot(cfg.HookUrl)
 			containerCh := make(chan string, 10240)
@@ -117,13 +121,13 @@ func start(c *cli.Context) error {
 
 			go func() {
 				if err := readContainerLog(cli, container, options, containerCh); err != nil {
-					fmt.Println(err)
+					log.Error(err)
 				}
 			}()
 		} else {
 			go func() {
 				if err := readContainerLog(cli, container, options, ch); err != nil {
-					fmt.Println(err)
+					log.Error(err)
 				}
 			}()
 		}
